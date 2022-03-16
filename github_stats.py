@@ -89,16 +89,17 @@ class Queries(object):
                         params=tuple(params.items()),
                     )
                 if r_async.status == 202:
-                    # print(f"{path} returned 202. Retrying...")
-                    print(f"A path returned 202. Retrying...")
+                    print(f"{path} returned 202. Retrying...")
+                    # print(f"A path returned 202. Retrying...")
                     await asyncio.sleep(2)
                     continue
 
                 result = await r_async.json()
                 if result is not None:
+                    # print(f"{path} checked OK !")
                     return result
             except:
-                print("aiohttp failed for rest query")
+                # print(f"aiohttp failed for rest query with {path}")
                 # Fall back on non-async requests
                 async with self.semaphore:
                     r_requests = requests.get(
@@ -112,8 +113,8 @@ class Queries(object):
                         continue
                     elif r_requests.status_code == 200:
                         return r_requests.json()
-        # print(f"There were too many 202s. Data for {path} will be incomplete.")
-        print("There were too many 202s. Data for this repository will be incomplete.")
+        print(f"There were too many 202s. Data for {path} will be incomplete.")
+        # print("There were too many 202s. Data for this repository will be incomplete.")
         return dict()
 
     @staticmethod
@@ -328,19 +329,33 @@ Languages:
                 .get("repositoriesContributedTo", {})
             )
             owned_repos = (
-                raw_results.get("data", {}).get("viewer", {}).get("repositories", {})
+                raw_results.get("data", {})
+                .get("viewer", {})
+                .get("repositories", {})
             )
 
             repos = owned_repos.get("nodes", [])
             if not self._ignore_forked_repos:
                 repos += contrib_repos.get("nodes", [])
 
+            # print(self._exclude_repos)
             for repo in repos:
                 if repo is None:
                     continue
                 name = repo.get("nameWithOwner")
-                if name in self._repos or name in self._exclude_repos:
+                if name in self._exclude_repos:
+                    print("%s is excluded !" % name)
                     continue
+                if name in self._repos:
+                    print("%s is already processed !" % name)
+                    continue
+                # if 'argopy' not in name:
+                #     print("skipping %s because not argopy !" % name)
+                #     continue
+                if 'euroargodev' not in name:
+                    print("skipping %s because not euroargodev !" % name)
+                    continue
+                print("Processing %s ..." % name)
                 self._repos.add(name)
                 self._stargazers += repo.get("stargazers").get("totalCount", 0)
                 self._forks += repo.get("forkCount", 0)

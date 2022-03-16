@@ -7,6 +7,8 @@
 
 </a>
 
+Repo generated from https://github.com/jstrieb/github-stats
+
 Generate visualizations of GitHub user and repository statistics using GitHub
 Actions.
 

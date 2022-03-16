@@ -61,7 +61,7 @@ jobs:
     - name: Commit to the repo
       run: |
         git config --global user.name "gmaze/github-stats"
-        git config --global user.email "github-stats[bot]@gmaze.github.io"
+        git config --global user.email "euroargodev-stats[bot]@gmaze.github.io"
         git add .
         # "echo" returns true so the build succeeds, even if no changed files
         git commit -m 'Update generated files' || echo
